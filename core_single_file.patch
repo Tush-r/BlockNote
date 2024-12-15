@@ -1,0 +1,71 @@
+diff --git a/README.md b/README.md
+index 6ad99737..bbc827a9 100644
+--- a/README.md
++++ b/README.md
+@@ -25,6 +25,13 @@ React rich text editor. Easily add a modern text editing experience to your app.
+   </a>
+ </p>
+ 
++# Core module single file patch
++
++- Apply `single_file.patch`.
++- Run `npm install` in main path, followed by `npm install` in /packages/core.
++- Change in `packages/core/vite.config.ts`, the `sourcemap` property to `true, false, 'inline'` based on the requirements.
++- Run `npm run clean` and `npm run build`.
++
+ # Live demo
+ 
+ See our homepage @ [https://www.blocknotejs.org](https://www.blocknotejs.org/) or browse the [examples](https://www.blocknotejs.org/examples).
+diff --git a/packages/core/package.json b/packages/core/package.json
+index de1551a1..549fd38a 100644
+--- a/packages/core/package.json
++++ b/packages/core/package.json
+@@ -97,6 +97,7 @@
+     "shiki": "^1.22.0",
+     "unified": "^10.1.2",
+     "uuid": "^8.3.2",
++    "vite-plugin-css-injected-by-js": "^3.5.2",
+     "y-prosemirror": "1.2.13",
+     "y-protocols": "^1.0.6",
+     "yjs": "^13.6.15"
+diff --git a/packages/core/vite.config.ts b/packages/core/vite.config.ts
+index 380b3a0a..cfd06704 100644
+--- a/packages/core/vite.config.ts
++++ b/packages/core/vite.config.ts
+@@ -2,6 +2,7 @@ import * as path from "path";
+ import { webpackStats } from "rollup-plugin-webpack-stats";
+ import { defineConfig } from "vite";
+ import pkg from "./package.json";
++import cssInjectedByJsPlugin from "vite-plugin-css-injected-by-js";
+ // import eslintPlugin from "vite-plugin-eslint";
+ 
+ const deps = Object.keys(pkg.dependencies);
+@@ -12,7 +13,7 @@ export default defineConfig({
+     environment: "jsdom",
+     setupFiles: ["./vitestSetup.ts"],
+   },
+-  plugins: [webpackStats()],
++  plugins: [webpackStats(), cssInjectedByJsPlugin({})],
+   build: {
+     sourcemap: true,
+     lib: {
+@@ -21,18 +22,10 @@ export default defineConfig({
+       fileName: "blocknote",
+     },
+     rollupOptions: {
+-      // make sure to externalize deps that shouldn't be bundled
+-      // into your library
+-      external: (source: string) => {
+-        if (deps.includes(source)) {
+-          return true;
+-        }
+-        return source.startsWith("prosemirror-") || source.startsWith("shiki/");
+-      },
+       output: {
+         // Provide global variables to use in the UMD build
+         // for externalized deps
+-        globals: {},
++        inlineDynamicImports: true,
+         interop: "compat", // https://rollupjs.org/migration/#changed-defaults
+       },
+     },

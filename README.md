@@ -25,6 +25,13 @@ React rich text editor. Easily add a modern text editing experience to your app.
   </a>
 </p>
 
+# Core module single file patch
+
+- Apply `single_file.patch`.
+- Run `npm install` in main path, followed by `npm install` in /packages/core.
+- Change in `packages/core/vite.config.ts`, the `sourcemap` property to `true, false, 'inline'` based on the requirements.
+- Run `npm run clean` and `npm run build`.
+
 # Live demo
 
 See our homepage @ [https://www.blocknotejs.org](https://www.blocknotejs.org/) or browse the [examples](https://www.blocknotejs.org/examples).
